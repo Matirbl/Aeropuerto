@@ -1,6 +1,5 @@
 package AeropuertoFinal;
 
-import java.util.Queue;
 import java.util.concurrent.Semaphore;
 
 public class Aeropuerto {
@@ -9,11 +8,8 @@ public class Aeropuerto {
     private Reloj reloj;
     private Semaphore mutexIngreso;
     private Semaphore mutexSalida;
-    private Queue puesto1;           //puesto de cada aerolinea
-    private Queue puesto2;
-    private Queue puesto3;
-
-
+    private Semaphore[] guardias;
+    private PuestoAtencion[] puestosAtencion;
 
 
     private Aeropuerto(Reloj r) {           //Constructor
@@ -21,8 +17,10 @@ public class Aeropuerto {
         mutexSalida = new Semaphore(1);
         reloj = r;
         hall = 500;
+        for (int i = 0; i < puestosAtencion.length; i++) {
+            puestosAtencion[i] = new PuestoAtencion(i);
+        }
     }
-
 
 
     public void abrir() {
@@ -39,12 +37,22 @@ public class Aeropuerto {
         }
     }
 
-    public void ingresar(Persona p, int aerolinea) {
+    public void ingresar(Persona p, int nroPuesto) {
+        boolean noIngreso = true;
         try {
             mutexIngreso.acquire();
             System.out.println(p.getIdPersona() + " INGRESA AL AEROPUERTO " + reloj.obtenerHora());
-            //trata de ingresar a su puesto de atención
-            //si no hay lugar espera en el hall
+
+            while (noIngreso) {
+                if (puestosAtencion[nroPuesto].ingresarAPuesto(p)) {
+                    System.out.println(p.getIdPersona() + "Ingresa al puesto de atención: " + nroPuesto);
+                    noIngreso = false;
+                } else {
+                    System.out.println(p.getIdPersona() + "Espera en el hall");
+                    mutexIngreso.release();
+                    Thread.sleep(1000);
+                }
+            }
             mutexIngreso.release();
         } catch (Exception e) {
         }
