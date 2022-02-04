@@ -25,37 +25,37 @@ public class FreeShop {
 
     }
 
-    public void irAlShoping(Persona p) {
-        if (getAbierto() && capacidad.tryAcquire()) {
+    public void irAFreeShop(Pasajero p) {
+        if (capacidad.tryAcquire()  && getAbierto()  ) {
             ingresar(p);
             comprar(p);
             salir(p);
         } else {
-            System.out.println(p.getIdPersona() + " quiso ingresar al Shopping pero no está disponible");
+            System.out.println(p.getIdPasajero() + " no pudo ingresar al freeshop");
         }
     }
 
-    public void ingresar(Persona p) {
+    public void ingresar(Pasajero p) {
         try {
             mutexIngresar.acquire();
-            System.out.println(p.getIdPersona() + " ingresó al SHOPPING");
+            System.out.println(p.getIdPasajero() + " ingresó al freeshop");
             Thread.sleep(1000);
             mutexIngresar.release();
         } catch (Exception e) {
         }
     }
 
-    public void comprar(Persona p) {
+    public void comprar(Pasajero p) {
         int compra = intAleatorio(2, 11);
         try {
             if (compra % 2 == 0) {
                 this.mutexCajaA.acquire();
-                System.out.println(p.getIdPersona() + " abonando en caja 1");
+                System.out.println(p.getIdPasajero() + " abonando en caja 1");
                 Thread.sleep(1000);
                 this.mutexCajaA.release();
             } else {
                 this.mutexCajaB.acquire();
-                System.out.println(p.getIdPersona() + " abonando en caja 2");
+                System.out.println(p.getIdPasajero() + " abonando en caja 2");
                 Thread.sleep(3000);
                 this.mutexCajaB.release();
             }
@@ -63,10 +63,10 @@ public class FreeShop {
         }
     }
 
-    private void salir(Persona p) {
+    private void salir(Pasajero p) {
         try {
             this.mutexSalir.acquire();
-            System.out.println(p.getIdPersona() + " está saliendo del SHOPPING");
+            System.out.println(p.getIdPasajero() + " está saliendo del SHOPPING");
             capacidad.release();
             this.mutexSalir.release();
             Thread.sleep(1000);

@@ -12,16 +12,14 @@ import static Utiles.Aleatorio.intAleatorio;
  *
  * @author Pucheta Matías, FAI - 1648
  */
-public class Reloj {
+public class Reloj implements Runnable {
 
     private int hora;
-    private int minutos;
-
+    private Aeropuerto aero;
     private Semaphore mutex;
 
     public Reloj(int hora) {
         this.hora = hora;
-        this.minutos = 0;
         mutex = new Semaphore(1, true);
     }
 
@@ -29,14 +27,13 @@ public class Reloj {
         try {
             mutex.acquire();
             hora = (hora + 1) % 24;
-            minutos = intAleatorio(0, 59);
             mutex.release();
             if (hora > 6 && hora < 22) {
                 Thread.sleep(3000);
             } else {
+                //el tiempo pasa más rápido cuando el aeropuerto está cerrado
                 Thread.sleep(1500);
             }
-
         } catch (Exception e) {
         }
     }
@@ -52,65 +49,21 @@ public class Reloj {
         return salida;
     }
 
-    public int getMinutos() {
-        return minutos;
-    }
-
     public String obtenerHora() {
-        return (hora + ":" + minutos + " hrs");
+        return (hora + " hrs");
     }
 
-    public boolean parqueDisp() {
-        boolean salida = false;
-        try {
-            mutex.acquire();
-            if (hora >= 9 && hora <= 17) {
-                salida = true;
+    @Override
+    public void run() {
+        while (true) {
+            System.out.println( obtenerHora());
+            if (getHora() == 6) {
+                aero.abrir();
             }
-            mutex.release();
-        } catch (Exception e) {
-        }
-        return salida;
-    }
-
-    public boolean actividadesDisp() {
-        boolean salida = false;
-        try {
-            mutex.acquire();
-            if (hora >= 9 && hora <= 18) {
-                salida = true;
+            if (getHora() == 22) {
+                aero.cerrar();
             }
-            mutex.release();
-        } catch (Exception e) {
+            pasarTiempo();
         }
-        return salida;
     }
-
-    public boolean carreraDisp() {
-        boolean salida = false;
-        try {
-            mutex.acquire();
-            if (hora >= 9 && hora <= 14) {
-                salida = true;
-            }
-            mutex.release();
-        } catch (Exception e) {
-        }
-        return salida;
-
-    }
-    public boolean transporteDisp() {
-        boolean salida = false;
-        try {
-            mutex.acquire();
-            if (hora >= 9 && hora <= 12) {
-                salida = true;
-            }
-            mutex.release();
-        } catch (Exception e) {
-        }
-        return salida;
-
-    }
-
 }
