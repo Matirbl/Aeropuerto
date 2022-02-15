@@ -8,31 +8,25 @@ import java.util.logging.Logger;
 
 public class Hall {
 
+    private Lock lock;
+    private Condition [] hall;
 
-    private final Lock lock;
-    private final Condition esperaPuestoA;
-    private final Condition esperaPuestoB;
-    private final Condition esperaPuestoC;
-
-    public Hall() {
+    public Hall(int cantAerolineas) {
         this.lock = new ReentrantLock();
-        esperaPuestoA = this.lock.newCondition();
-        esperaPuestoB = this.lock.newCondition();
-        esperaPuestoC = this.lock.newCondition();
-    }
+        hall= new Condition[cantAerolineas];
 
+        for (int i = 0; i < cantAerolineas; i++) {
+            this.hall[i] = lock.newCondition();
+        }
+
+    }
 
     public void esperarHall(int idAerolinea) {
 
         this.lock.lock();
         try {
-            if (idAerolinea == 1) {
-                esperaPuestoA.await();
-            } else if (idAerolinea == 2) {
-                esperaPuestoB.await();
-            } else if (idAerolinea == 3) {
-                esperaPuestoC.await();
-            }
+           this.hall[idAerolinea].await();
+
         } catch (InterruptedException ex) {
             Logger.getLogger(Hall.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
@@ -41,16 +35,10 @@ public class Hall {
     }
 
     public void avisar(int idAerolinea) {
-
+        System.out.println("El guardia avisa que hay lugar para el puesto " + idAerolinea);
         this.lock.lock();
         try {
-            if (idAerolinea == 1) {
-                esperaPuestoA.signalAll();
-            } else if (idAerolinea == 2) {
-                esperaPuestoB.signalAll();
-            } else if (idAerolinea == 3) {
-                esperaPuestoC.signalAll();
-            }
+            this.hall[idAerolinea].signalAll();
         } finally {
             this.lock.unlock();
         }

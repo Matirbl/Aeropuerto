@@ -15,21 +15,20 @@ public class PuestoInforme {
         this.puestosAtencion = puestosAtencion;
     }
 
-    public PuestoAtencion buscarPuesto(Aerolinea aerolinea) {
-        //Busco el puesto para la aerolinea deseada
+    public PuestoAtencion buscarPuesto(Aerolinea aerolinea, Pasajero pasajero) {
         PuestoAtencion puestoAtencion = null;
         try {
             mutexEntrada.acquire();
-            System.out.println(Thread.currentThread().getName() + " entra al puesto de informes");
+            System.out.println("Pasajero " + pasajero.getIdPasajero() + " entra al puesto de informes");
             Thread.sleep(1000);
             puestoAtencion = compararAerolineas(aerolinea);
 
         } catch (InterruptedException ex) {
             Logger.getLogger(PuestoInforme.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
-            System.out.println(Thread.currentThread().getName() + " se retira del puesto de informes");
+            System.out.println("Pasajero " + pasajero.getIdPasajero() + " se retira del puesto de informes");
             if (puestoAtencion != null) {
-                System.out.println(Thread.currentThread().getName() + " tu puesto de atencion es " + puestoAtencion.getAerolinea().getIdAerolinea());
+                System.out.println("Pasajero " + pasajero.getIdPasajero() + " tu puesto de atencion es " + puestoAtencion.getAerolinea().getIdAerolinea());
             }
             mutexEntrada.release();
         }

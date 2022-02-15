@@ -6,19 +6,17 @@
 package AeropuertoFinal;
 
 import java.util.concurrent.Semaphore;
-import static Utiles.Aleatorio.intAleatorio;
 
-/**
- *
- * @author Pucheta Matías, FAI - 1648
- */
+
 public class Reloj implements Runnable {
 
     private int hora;
     private Aeropuerto aero;
     private Semaphore mutex;
 
-    public Reloj(int hora) {
+
+    public Reloj(int hora, Aeropuerto aeropuerto) {
+        this.aero = aeropuerto;
         this.hora = hora;
         mutex = new Semaphore(1, true);
     }
@@ -29,9 +27,8 @@ public class Reloj implements Runnable {
             hora = (hora + 1) % 24;
             mutex.release();
             if (hora > 6 && hora < 22) {
-                Thread.sleep(3000);
+                Thread.sleep(5000);
             } else {
-                //el tiempo pasa más rápido cuando el aeropuerto está cerrado
                 Thread.sleep(1500);
             }
         } catch (Exception e) {
@@ -50,13 +47,13 @@ public class Reloj implements Runnable {
     }
 
     public String obtenerHora() {
-        return (hora + " hrs");
+        return (" La hora es: " + hora + " hrs");
     }
 
     @Override
     public void run() {
         while (true) {
-            System.out.println( obtenerHora());
+            System.out.println("\u001B[33m" + obtenerHora() + "\u001B[0m");
             if (getHora() == 6) {
                 aero.abrir();
             }
@@ -66,4 +63,5 @@ public class Reloj implements Runnable {
             pasarTiempo();
         }
     }
+
 }
