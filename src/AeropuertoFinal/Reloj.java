@@ -10,7 +10,7 @@ import java.util.concurrent.Semaphore;
 
 public class Reloj implements Runnable {
 
-    private int hora;
+    private static int hora;
     private Aeropuerto aero;
     private Semaphore mutex;
 
@@ -35,15 +35,9 @@ public class Reloj implements Runnable {
         }
     }
 
-    public int getHora() {
-        int salida = 0;
-        try {
-            mutex.acquire();
-            salida = hora;
-            mutex.release();
-        } catch (Exception e) {
-        }
-        return salida;
+    public static int getHora() {
+
+        return hora;
     }
 
     public String obtenerHora() {

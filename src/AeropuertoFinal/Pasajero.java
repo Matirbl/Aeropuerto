@@ -1,5 +1,7 @@
 package AeropuertoFinal;
 
+import Utiles.Aleatorio;
+
 public class Pasajero implements Runnable {
 
     private int idPasajero;
@@ -27,6 +29,13 @@ public class Pasajero implements Runnable {
         PuestoAtencion puestoAtencionPasajero = puestoInforme.buscarPuesto(aerolineaPasajero, this);
         puestoAtencionPasajero.ingresarAPuesto(this);
         puestoAtencionPasajero.realizarCheckin(this);
+
+        //EL PASAJERO VERIFICA QUE TIENE MAS DE DOS HORA PARA TOMAR EL VUELO
+        if (Aleatorio.intAleatorio(0, 10) % 2 == 0 && (vuelo.getHora() - Reloj.getHora()> 2)) {
+            vuelo.getTerminal().irAfreeShop(this);
+        }
+
+
         //hacer actividades
         aeropuerto.salir(this);
     }

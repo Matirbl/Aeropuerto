@@ -26,7 +26,7 @@ public class PuestoAtencion {
 
         for (int i = 0; i < vuelos.length; i++) {
             Terminal terminalAsignada = terminales[Aleatorio.intAleatorio(0, terminales.length - 1)];
-            vuelos[i] = new Vuelo(aerolinea, Aleatorio.intAleatorio(6, 22), terminalAsignada, terminalAsignada.getPuestoEmbarque());
+            vuelos[i] = new Vuelo(aerolinea, Aleatorio.intAleatorio(6, 20), terminalAsignada, terminalAsignada.getPuestoEmbarque());
         }
 
     }
@@ -83,7 +83,7 @@ public class PuestoAtencion {
 
         p.asignarVuelo(vuelos[p.getNroVuelo()]);
 
-        System.out.println("/////////////////Al pasajero: " + p.getIdPasajero() + " se le asigna la Terminal " + p.getVuelo().getTerminal() + " con embarque " + p.getVuelo().getPuestoEmbarque());
+        System.out.println("/////////////////Al pasajero: " + p.getIdPasajero() + " se le asigna: " + p.getVuelo().getTerminal().getNombre() + " con embarque " + p.getVuelo().getPuestoEmbarque());
     }
 
     public int getEspaciosLibres() {
