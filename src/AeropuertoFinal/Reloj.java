@@ -13,12 +13,14 @@ public class Reloj implements Runnable {
     private static int hora;
     private Aeropuerto aero;
     private Semaphore mutex;
+    private Terminal[] terminales;
 
 
-    public Reloj(int hora, Aeropuerto aeropuerto) {
+    public Reloj(int hora, Aeropuerto aeropuerto, Terminal[] terminales) {
         this.aero = aeropuerto;
         this.hora = hora;
         mutex = new Semaphore(1, true);
+        this.terminales = terminales;
     }
 
     public void pasarTiempo() {
@@ -44,6 +46,14 @@ public class Reloj implements Runnable {
         return (" La hora es: " + hora + " hrs");
     }
 
+
+    public void avisarVuelos() {
+        // avisa a los pasajeros que es hora de su vuelo
+        for (Terminal terminal : terminales) {
+            terminal.avisarVuelos();
+        }
+    }
+
     @Override
     public void run() {
         while (true) {
@@ -55,6 +65,7 @@ public class Reloj implements Runnable {
                 aero.cerrar();
             }
             pasarTiempo();
+            avisarVuelos();
         }
     }
 

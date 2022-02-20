@@ -5,13 +5,13 @@ import Utiles.Aleatorio;
 public class Main {
 
     private static Aeropuerto aeropuerto = new Aeropuerto("Viaje Bonito");
-    private static final int cantPasajeros =5, cantAerolineas = 3, cantPuestosAtencion = 3;
+    private static final int cantPasajeros = 5, cantAerolineas = 3, cantPuestosAtencion = 3;
     private static Hall hall = new Hall(cantAerolineas);
     private static PuestoAtencion[] puestosAtencion = new PuestoAtencion[cantPuestosAtencion];
     private static Aerolinea[] aerolineas = new Aerolinea[cantAerolineas];
-    private static Reloj reloj = new Reloj(0, aeropuerto);
     private static Tren tren = new Tren();
     private static Terminal[] terminales = new Terminal[3];
+    private static Reloj reloj = new Reloj(0, aeropuerto, terminales);
 
 
     public static void main(String[] args) {
@@ -24,6 +24,7 @@ public class Main {
         PuestoInforme puestoInforme = cargarPuestoInforme();
         cargarPasajeros(puestoInforme);
         cargarReloj();
+        cargarTren();
     }
 
     private static void cargarAerolineas() {
@@ -61,7 +62,7 @@ public class Main {
         FreeShop freeShop = new FreeShop(caja1, caja2);
 
         //CREO TERMINALES
-        String[] nombresTerminales = new String[]{"Terminal A", "Terminal B", "Terminal C"};
+        String[] nombresTerminales = new String[]{"TerminalA", "TerminalB", "TerminalC"};
         for (int i = 0; i < terminales.length; i++) {
             terminales[i] = new Terminal(nombresTerminales[i], freeShop);
         }
@@ -93,8 +94,13 @@ public class Main {
 
     private static void cargarReloj() {
         //CREO HILO RELOJ
-        Thread hiloReloj = new Thread(new Reloj(5, aeropuerto));
+        Thread hiloReloj = new Thread(new Reloj(5, aeropuerto, terminales));
         hiloReloj.start();
+    }
+
+    private static void cargarTren() {
+        Thread hiloTren = new Thread(tren);
+        hiloTren.start();
     }
 }
 

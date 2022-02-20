@@ -83,7 +83,8 @@ public class PuestoAtencion {
 
         p.asignarVuelo(vuelos[p.getNroVuelo()]);
 
-        System.out.println("/////////////////Al pasajero: " + p.getIdPasajero() + " se le asigna: " + p.getVuelo().getTerminal().getNombre() + " con embarque " + p.getVuelo().getPuestoEmbarque());
+        System.out.println("\u001B[36m" + "///////Al pasajero: " + p.getIdPasajero() + " se le asigna: " + p.getVuelo().getTerminal().getNombre() + " con embarque "
+                + p.getVuelo().getPuestoEmbarque() + " a las "+ p.getVuelo().getHora()+ " horas ///////" + "\u001B[0m");
     }
 
     public int getEspaciosLibres() {
