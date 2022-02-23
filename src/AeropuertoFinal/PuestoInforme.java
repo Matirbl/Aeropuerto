@@ -1,9 +1,9 @@
 package AeropuertoFinal;
 
 
+import Utiles.Aleatorio;
+
 import java.util.concurrent.Semaphore;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class PuestoInforme {
 
@@ -15,39 +15,16 @@ public class PuestoInforme {
         this.puestosAtencion = puestosAtencion;
     }
 
-    public PuestoAtencion buscarPuesto(Aerolinea aerolinea, Pasajero pasajero) {
-        PuestoAtencion puestoAtencion = null;
+    public PuestoAtencion buscarPuesto() {
+        PuestoAtencion puestoAsignado = null;
         try {
             mutexEntrada.acquire();
-            System.out.println("Pasajero " + pasajero.getIdPasajero() + " entra al puesto de informes");
-            Thread.sleep(1000);
-            puestoAtencion = compararAerolineas(aerolinea);
-
-        } catch (InterruptedException ex) {
-            Logger.getLogger(PuestoInforme.class.getName()).log(Level.SEVERE, null, ex);
+            puestoAsignado = puestosAtencion[Aleatorio.intAleatorio(0, puestosAtencion.length - 1)];
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         } finally {
-            System.out.println("Pasajero " + pasajero.getIdPasajero() + " se retira del puesto de informes");
-            if (puestoAtencion != null) {
-                System.out.println("Pasajero " + pasajero.getIdPasajero() + " tu puesto de atencion es " + puestoAtencion.getAerolinea().getIdAerolinea());
-            }
             mutexEntrada.release();
         }
-        return puestoAtencion;
-    }
-
-    //Este método se encarga de verificar si existe algún puesto de atención con el mismo id que la aerolinea del pasajero.
-    private PuestoAtencion compararAerolineas(Aerolinea aerolinea) {
-        PuestoAtencion resultado = null;
-        boolean parar = false;
-        int puestoActual = 0;
-        while (puestoActual < puestosAtencion.length && !parar) {
-            if (puestosAtencion[puestoActual].getAerolinea() == aerolinea) {
-                resultado = puestosAtencion[puestoActual];
-                parar = true;
-            }
-            puestoActual++;
-        }
-        return resultado;
+        return puestoAsignado;
     }
 }
-

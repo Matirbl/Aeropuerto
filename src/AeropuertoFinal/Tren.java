@@ -13,7 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class Tren implements Runnable {
+public class Tren {
 
     private final int capacidad = 3;
     private final int tiempoBarrera = 30;
@@ -29,7 +29,6 @@ public class Tren implements Runnable {
     private final AtomicInteger cantPasajerosA;
     private final AtomicInteger cantPasajerosB;
     private final AtomicInteger cantPasajerosC;
-    private final AtomicInteger cantPasajeros;
     private int pasajerosEnTren;
 
     public Tren() {
@@ -58,7 +57,7 @@ public class Tren implements Runnable {
         trenEnEspera = lock.newCondition();
         esperaSubir = lock.newCondition();
 
-        cantPasajeros = new AtomicInteger(0);
+
         cantPasajerosA = new AtomicInteger(0);
         cantPasajerosB = new AtomicInteger(0);
         cantPasajerosC = new AtomicInteger(0);
@@ -73,7 +72,7 @@ public class Tren implements Runnable {
         try {
 
             this.lock.lock();
-            cantPasajeros.incrementAndGet();
+
 
             while (trenActivo || pasajerosEnTren > capacidad) {
                 System.out.println("\u001B[31m" + "El pasajero " + pasajero.getIdPasajero() + " espera para subir al tren" + "\u001B[0m");
@@ -103,16 +102,16 @@ public class Tren implements Runnable {
         } catch (TimeoutException e) {
             System.out.println("\u001B[31m" + "Pasajero " + pasajero.getIdPasajero() + " intenta subir ,pero ya pasó el tiempo de espera de la barrera, el tren arranca" + "\u001B[0m");
             trenActivo = true;
-           // e.printStackTrace();
+            // e.printStackTrace();
         }
 
-        //Pasajero ya está en su condition
+        //Pasajero entra en su condition
         this.lock.lock();
         try {
 
             this.pasajerosEnTren--;
             if (this.pasajerosEnTren == 0) {  //Todos los pasajeros tienen asignado un conjunto de espera, ninguno está parado.
-                System.out.println("\u001B[31m" + " El pasajero: " + pasajero.getIdPasajero() + " es el último hilo necesario para que arranque el tren " + "\u001B[0m");
+                System.out.println("\u001B[31m" + " Los pasajeros ya tienen asignado su conjunto de espera" + "\u001B[0m");
                 this.trenEnEspera.signal();
             }
             //Pasajero espera a que el tren le diga donde bajar
@@ -125,7 +124,6 @@ public class Tren implements Runnable {
         }
 
     }
-
 
     private void setEsperaTerminal(String terminal) {
 
@@ -171,13 +169,13 @@ public class Tren implements Runnable {
                 this.cantPasajerosC.incrementAndGet();
                 break;
             }
-
         }
+
     }
 
-    public void bajar(String terminal, Pasajero pasajero) {
+    public void bajar(Pasajero pasajero, String terminal) {
 
-        System.out.println("\u001B[31m" + "El pasajero " + pasajero.getIdPasajero() + " espera baja en la terminal " + terminal + "\u001B[0m");
+        System.out.println("\u001B[31m" + "El pasajero " + pasajero.getIdPasajero() + " baja en la terminal " + terminal + "\u001B[0m");
         switch (terminal) {
             case "TerminalA": {
                 cantPasajerosA.decrementAndGet();
@@ -195,7 +193,6 @@ public class Tren implements Runnable {
             default:
                 System.out.println("Error");
         }
-        this.cantPasajeros.decrementAndGet();
         try {
             this.lock.lock();
             this.trenEnEspera.signal();
@@ -204,7 +201,7 @@ public class Tren implements Runnable {
         }
     }
 
-    public void bajarPasajeros(AtomicInteger cantidad, Condition conjuntoEspera, String terminal) {
+    private void bajarPasajerosAux(AtomicInteger cantidad, Condition conjuntoEspera, String terminal) {
 
         while (cantidad.get() != 0) {
 
@@ -212,7 +209,6 @@ public class Tren implements Runnable {
                 this.lock.lock();
                 System.out.println("\u001B[31m" + " espero a que bajen los pasajeros de la terminal " + terminal + "\u001B[0m");
                 conjuntoEspera.signalAll();
-
                 //El tren se detiene esperando a que bajen todos en la terminal
                 this.trenEnEspera.await();
             } catch (Exception ex) {
@@ -224,58 +220,65 @@ public class Tren implements Runnable {
 
     }
 
-    public void run() {
+    public void bajarPasajeros(String terminal) {
 
-
-        while (true) {
-            try {
-                this.lock.lock();
-
-                while (!Tren.trenActivo) {
-                    System.out.println("El tren espera para salir");
-                    // tren espera que llene su capacidad para arrancar
-                    this.trenEnEspera.await();
-                }
-
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Tren.class.getName()).log(Level.SEVERE, null, ex);
-            } finally {
-                this.lock.unlock();
+        switch (terminal) {
+            case "TerminalA": {
+                System.out.println("Tren pasa por la terminal A");
+                bajarPasajerosAux(this.cantPasajerosA, this.esperasTerminal[0], terminal);
+                break;
             }
-
-            System.out.println("El tren comienza su recorrido");
-
-            System.out.println("Tren pasa por la terminal A");
-            bajarPasajeros(this.cantPasajerosA, this.esperasTerminal[0], "Terminal A");
-
-            System.out.println("Tren pasa por la terminal B");
-            bajarPasajeros(this.cantPasajerosB, this.esperasTerminal[1], "Terminal B");
-
-            System.out.println("Tren pasa por la terminal C");
-            bajarPasajeros(this.cantPasajerosC, this.esperasTerminal[2], "Terminal C");
-
-            System.out.println("Tren finaliza el recorrido");
-
-            try {
-                System.out.println("Tren vuelve a recoger pasajeros");
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            case "TerminalB": {
+                System.out.println("Tren pasa por la terminal B");
+                bajarPasajerosAux(this.cantPasajerosB, this.esperasTerminal[1], terminal);
+                break;
             }
-
-            // Tren espera nuevos pasajeros
-            this.trenActivo = false;
-
-            this.lock.lock();
-            try {
-                // aviso a los pasajeros que pueden volver a subir
-                this.esperaSubir.signalAll();
-            } finally {
-                this.lock.unlock();
+            case "TerminalC": {
+                System.out.println("Tren pasa por la terminal C");
+                bajarPasajerosAux(this.cantPasajerosC, this.esperasTerminal[2], terminal);
+                break;
             }
         }
 
+    }
 
+    public void iniciarTren() {
+        try {
+            this.lock.lock();
+
+            while (!Tren.trenActivo) {
+                System.out.println("\u001B[31m" +"El tren espera para salir"+ "\u001B[0m");
+                // tren espera que llene su capacidad para arrancar
+                this.trenEnEspera.await();
+            }
+
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Tren.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            this.lock.unlock();
+        }
+
+    }
+
+
+    public void volverAPuesto() {
+        try {
+            System.out.println("\u001B[31m" +"Tren vuelve a recoger pasajeros a los puestos de atención"+ "\u001B[0m");
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Tren espera nuevos pasajeros
+        this.trenActivo = false;
+
+        this.lock.lock();
+        try {
+            // aviso a los pasajeros que pueden volver a subir
+            this.esperaSubir.signalAll();
+        } finally {
+            this.lock.unlock();
+        }
     }
 
 

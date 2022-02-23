@@ -13,35 +13,32 @@ public class Pasajero implements Runnable {
     private Vuelo vuelo;
 
 
-    public Pasajero(int id, Aeropuerto aeropuerto1, PuestoInforme puestoInforme, Aerolinea aerolinea, Tren tren, int nroVuelo) {
+    public Pasajero(int id, Aeropuerto aeropuerto1, PuestoInforme puestoInforme, Tren tren) {
         idPasajero = id;
         aeropuerto = aeropuerto1;
         this.puestoInforme = puestoInforme;
-        this.aerolineaPasajero = aerolinea;
+        this.aerolineaPasajero = null;
         this.tren = tren;
-        this.nroVuelo = nroVuelo;
         this.vuelo = null;
     }
 
     @Override
     public void run() {
         aeropuerto.ingresar(this);
-        PuestoAtencion puestoAtencionPasajero = puestoInforme.buscarPuesto(aerolineaPasajero, this);
+        PuestoAtencion puestoAtencionPasajero = puestoInforme.buscarPuesto();
+        System.out.println("AL PASAJERO " + idPasajero + " SE LE ASIGNA EL PUESTO:" + puestoAtencionPasajero.getAerolinea().getIdAerolinea());
         puestoAtencionPasajero.ingresarAPuesto(this);
         puestoAtencionPasajero.realizarCheckin(this);
 
-        System.out.println( "-----------------PASAJERO "+ this.getIdPasajero() + " EJECUTA SUBIR------------------");
         tren.subir(this, vuelo.getTerminal().getNombre());
-        tren.bajar(vuelo.getTerminal().getNombre(), this);
-
+        tren.bajar(this, vuelo.getTerminal().getNombre());
 
         //EL PASAJERO VERIFICA QUE TIENE MAS DE DOS HORA PARA TOMAR EL VUELO
-
-       if (Aleatorio.intAleatorio(0, 10) % 2 == 0 && (vuelo.getHora() - Reloj.getHora() > 2)) {
+        if (Aleatorio.intAleatorio(0, 10) % 2 == 0 && (vuelo.getHora() - Reloj.getHora() > 2)) {
             vuelo.getTerminal().irAfreeShop(this);
         }
 
-        vuelo.getTerminal().esperarEmbarque(vuelo.getHora(), vuelo.getPuestoEmbarque(), this);
+        vuelo.getTerminal().esperarVuelo(vuelo.getHora(), vuelo.getPuestoEmbarque(), this);
 
         aeropuerto.salir(this);
     }

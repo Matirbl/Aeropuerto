@@ -18,17 +18,20 @@ public class Terminal {
 
     }
 
+    //Reloj avisa a los pasajeros que paso una hora
     public synchronized void avisarVuelos() {
         this.notifyAll();
     }
 
     public void irAfreeShop(Pasajero pasajero) {
+        this.freeShop.ingresar(pasajero, nombre);
         this.freeShop.comprar(pasajero, Aleatorio.intAleatorio(3, 6));
+        this.freeShop.salir(pasajero, nombre);
     }
 
-    public synchronized void esperarEmbarque(int hora, int puestoEmbarque, Pasajero pasajero) {
-        // El pasajero espera por su vuelo
-        while (hora != Reloj.getHora()) {
+    public synchronized void esperarVuelo(int hora, int puestoEmbarque, Pasajero pasajero) {
+        // El pasajero es despertado por el reloj y verifica si es la hora de su vuelo
+        while (hora > Reloj.getHora()) {
             try {
                 System.out.println(pasajero.getIdPasajero() + " Espera el vuelo a las " + hora + "hrs, en la terminal" + nombre + " con puesto de embarque " + puestoEmbarque);
                 this.wait();
@@ -36,7 +39,11 @@ public class Terminal {
                 Logger.getLogger(Terminal.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        System.out.println("El pasajero " +pasajero.getIdPasajero() + " abando el aeropuerto y toma su vuelo  ");
+        if (hora == Reloj.getHora()) {
+            System.out.println("\u001B[32m" + "El pasajero " + pasajero.getIdPasajero() + " abandona el aeropuerto y toma su vuelo  " + "\u001B[0m");
+        } else {
+            System.out.println("\u001B[32m" + "El pasajero " + pasajero.getIdPasajero() + " llegó tarde y perdió su vuelo  " + "\u001B[0m");
+        }
     }
 
     public String getNombre() {

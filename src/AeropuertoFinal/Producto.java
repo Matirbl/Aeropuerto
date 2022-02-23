@@ -15,4 +15,8 @@ public class Producto {
         return this.precio;
     }
 
+    public String getNombre() {
+        return nombre;
+    }
+
 }

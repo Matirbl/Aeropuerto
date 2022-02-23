@@ -24,6 +24,7 @@ public class Aeropuerto {
         System.out.println("Pasajero" + p.getIdPasajero() + " ingresó al aeropuerto");
     }
 
+
     public synchronized void salir(Pasajero p) {
 
         while (!aeropuertoAbierto) {

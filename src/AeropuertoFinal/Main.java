@@ -1,11 +1,9 @@
 package AeropuertoFinal;
 
-import Utiles.Aleatorio;
-
 public class Main {
 
     private static Aeropuerto aeropuerto = new Aeropuerto("Viaje Bonito");
-    private static final int cantPasajeros = 5, cantAerolineas = 3, cantPuestosAtencion = 3;
+    private static final int cantPasajeros = 10, cantAerolineas = 3, cantPuestosAtencion = 3;
     private static Hall hall = new Hall(cantAerolineas);
     private static PuestoAtencion[] puestosAtencion = new PuestoAtencion[cantPuestosAtencion];
     private static Aerolinea[] aerolineas = new Aerolinea[cantAerolineas];
@@ -24,7 +22,7 @@ public class Main {
         PuestoInforme puestoInforme = cargarPuestoInforme();
         cargarPasajeros(puestoInforme);
         cargarReloj();
-        cargarTren();
+        cargarControlTren();
     }
 
     private static void cargarAerolineas() {
@@ -54,7 +52,7 @@ public class Main {
 
         //CREO CAJERAS
         Thread cajera1 = new Thread(new Cajera(caja1, "Cajera 1"));
-        Thread cajera2 = new Thread(new Cajera(caja1, "Cajera 2"));
+        Thread cajera2 = new Thread(new Cajera(caja2, "Cajera 2"));
         cajera1.start();
         cajera2.start();
 
@@ -86,7 +84,7 @@ public class Main {
         //CREO HILOS DE PASAJEROS
         Thread hilosPasajeros[] = new Thread[cantPasajeros];
         for (int i = 0; i < hilosPasajeros.length; i++) {
-            hilosPasajeros[i] = new Thread(new Pasajero(i, aeropuerto, puestoInforme, aerolineas[i % cantAerolineas], tren, Aleatorio.intAleatorio(0, 2)));
+            hilosPasajeros[i] = new Thread(new Pasajero(i, aeropuerto, puestoInforme, tren));
             hilosPasajeros[i].start();
         }
 
@@ -98,9 +96,10 @@ public class Main {
         hiloReloj.start();
     }
 
-    private static void cargarTren() {
-        Thread hiloTren = new Thread(tren);
-        hiloTren.start();
+    private static void cargarControlTren() {
+        Thread hiloControl = new Thread(new controlTren(tren));
+        hiloControl.start();
+
     }
 }
 

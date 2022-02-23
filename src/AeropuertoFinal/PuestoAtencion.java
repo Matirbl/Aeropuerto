@@ -61,19 +61,19 @@ public class PuestoAtencion {
 
     }
 
-    public void realizarCheckin(Pasajero p) {
+    public void realizarCheckin(Pasajero pasajero) {
         try {
-            System.out.println(p.getIdPasajero() + " está realizando el checkin en puesto de atención " + getAerolinea().getIdAerolinea());
+            System.out.println(pasajero.getIdPasajero() + " está realizando el checkin en puesto de atención " + getAerolinea().getIdAerolinea());
 
             Thread.sleep(4000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        System.out.println(p.getIdPasajero() + " abandona el puesto de atención");
+        System.out.println(pasajero.getIdPasajero() + " abandona el puesto de atención");
 
-        this.guardia.avisarGuardia(p);
-        this.filaPasajeros.remove(p);
+        this.guardia.avisarGuardia(pasajero);
+        this.filaPasajeros.remove(pasajero);
 
 
         synchronized (this) {
@@ -81,27 +81,16 @@ public class PuestoAtencion {
             this.notifyAll();
         }
 
-        p.asignarVuelo(vuelos[p.getNroVuelo()]);
+        pasajero.asignarVuelo(vuelos[pasajero.getNroVuelo()]);
 
-        System.out.println("\u001B[36m" + "///////Al pasajero: " + p.getIdPasajero() + " se le asigna: " + p.getVuelo().getTerminal().getNombre() + " con embarque "
-                + p.getVuelo().getPuestoEmbarque() + " a las "+ p.getVuelo().getHora()+ " horas ///////" + "\u001B[0m");
+        System.out.println("\u001B[36m" + "///////Al pasajero: " + pasajero.getIdPasajero() + " se le asigna: " + pasajero.getVuelo().getTerminal().getNombre() + " con embarque "
+                + pasajero.getVuelo().getPuestoEmbarque() + " a las " + pasajero.getVuelo().getHora() + " horas ///////" + "\u001B[0m");
     }
 
-    public int getEspaciosLibres() {
-        int res = maxCapacidad;
-        if (!filaPasajeros.isEmpty()) {
-            res = maxCapacidad - filaPasajeros.size();
-        }
-        return res;
-    }
 
     public Aerolinea getAerolinea() {
         return this.aerolinea;
     }
 
-    public int getMaxCapacidad() {
-        return maxCapacidad;
-    }
+
 }
-
-
